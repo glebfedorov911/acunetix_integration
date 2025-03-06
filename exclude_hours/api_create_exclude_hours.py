@@ -56,7 +56,7 @@ class ExcludedHoursProfile(Body):
             "name": self.name,
             "excluded_hours_id": self.exclude_hours_id,
             "time_offset": self.time_offset,
-            "exclusion_matrix": self._convert_to_matrix()
+            "exclusion_matrix": ExcludeHoursConverter(self.exclude_hours).to_matrix()
         }
         return self._delete_node_fields(result)
 
@@ -68,8 +68,17 @@ class ExcludedHoursProfile(Body):
 
         return result
 
-    def _convert_to_matrix(self) -> List:
-        matrix_exclude_hours = [False] * self.hours_in_week
+class ExcludeHoursConverter:
+
+
+    HOURS_IN_WEEK = 168
+    HOURS_IN_DAY = 24
+
+    def __init__(self, exclude_hours: List[ExcludeHours]):
+        self.exclude_hours = exclude_hours
+
+    def to_matrix(self) -> List:
+        matrix_exclude_hours = [False] * self.HOURS_IN_WEEK
 
         if not self.exclude_hours:
             return matrix_exclude_hours
@@ -91,9 +100,7 @@ class ExcludedHoursProfile(Body):
         return range(exclude_hour.start_time-1, exclude_hour.finish_time)
 
     def _get_index_hour_exclude(self, day_of_week, hour):
-        return day_of_week * self.hour_in_day + hour
-
-
+        return day_of_week * self.HOURS_IN_DAY + hour
 
 class ApiCreateExcludeHours(Api):
 
