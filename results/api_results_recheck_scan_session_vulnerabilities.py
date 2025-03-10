@@ -1,10 +1,7 @@
 from base import BASE_URL
 from .api_results_mixin import ApiResultsMixin
-from .utils import VulnRecheckMixin
+from .utils import VulnRecheckMixin, VulnerabilitiesRecheck
 
-
-class VulnerabilitiesRecheck(VulnRecheckMixin):
-    vuln_id_list: list[str]
 
 class ApiRecheckScanSessionVunerabilitiesResults(ApiResultsMixin):
     def __init__(
