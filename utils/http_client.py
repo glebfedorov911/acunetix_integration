@@ -2,11 +2,13 @@ from abc import ABC, abstractmethod
 
 import requests
 import urllib3
+import json as json_lib
 
 from custom_logger import logger
 from utils.http_client_exception import (
     FactoryHttpClientException, HttpClientException
 )
+from .http_error_handler import HttpErrorFabric
 
 
 urllib3.disable_warnings()
@@ -35,20 +37,22 @@ class HttpRequestClient(HttpClient):
         self.headers = headers
         self.proxy = proxy
 
-    def send_request(self) -> dict:
+    def send_request(self) -> str:
         try:
             return self._send_request()
         except requests.exceptions.RequestException as e:
             logger.error("Error sending request to %s: %s", self.url, str(e))
             raise ValueError(HttpClientException.ERROR_SEND_REQUEST)
 
-    def _send_request(self) -> dict:
+    def _send_request(self) -> str:
         logger.info("Sending %s request to %s", self.method, self.url)
         response = requests.request(self.method, self.url, json=self.json,
                                    headers=self.headers, proxies=self.proxy,
                                    verify=False)
         logger.info("Response %s", response.text)
-        response.raise_for_status()
+        response_json = json_lib.loads(response.text)
+        if "code" in response_json:
+            raise HttpErrorFabric.create_error(response_json["code"], response_json["details"])
 
         logger.info("Request sent successfully to %s", self.url)
         return response.text
