@@ -50,9 +50,13 @@ class HttpRequestClient(HttpClient):
                                    headers=self.headers, proxies=self.proxy,
                                    verify=False)
         logger.info("Response %s", response.text)
-        response_json = json_lib.loads(response.text)
-        if "code" in response_json:
-            raise HttpErrorFabric.create_error(response_json["code"], response_json["details"])
+
+        try:
+            response_json = json_lib.loads(response.text)
+            if "code" in response_json:
+                raise HttpErrorFabric.create_error(response_json["code"], response_json["message"])
+        except json_lib.JSONDecodeError:
+            ...
 
         logger.info("Request sent successfully to %s", self.url)
         return response.text

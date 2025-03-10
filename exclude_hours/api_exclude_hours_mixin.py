@@ -1,7 +1,8 @@
 from base import BASE_URL
 from custom_logger import logger
-from exclude_hours.interfaces import Api
-from utils.exclude_hours_exception import ExcludeHoursException
+from utils.http_client_exception import HttpClientException
+from utils.http_error_handler import HttpError
+from utils.interfaces import Api
 from utils.http_client import RequestClientFactory
 
 
@@ -25,19 +26,21 @@ class ApiExcludeHoursMixin(Api):
         }
 
         factory = RequestClientFactory()
-        if not json:
+        if json:
             self.http_client = factory.create_new_client(
-                method, url=self.url, headers=self.headers
+                method, url=self.url, headers=self.headers, json=json
             )
         else:
             self.http_client = factory.create_new_client(
-                method, url=self.url, headers=self.headers,
-                json=json
+                method, url=self.url, headers=self.headers
             )
 
     def do(self):
         try:
             return self.http_client.send_request()
+        except HttpError as e:
+            logger.error("Cannot do this request %s", str(e))
+            raise ValueError(e)
         except Exception as e:
             logger.error("Cannot do this request %s", str(e))
-            raise ValueError(ExcludeHoursException.BAD_REQUEST)
+            raise ValueError(HttpClientException.ERROR_SEND_REQUEST.value)

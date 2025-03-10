@@ -1,5 +1,5 @@
 from .api_exclude_hours_mixin import ApiExcludeHoursMixin
-from .interfaces import Body
+from utils.interfaces import Body
 
 
 class ApiCreateExcludeHours(ApiExcludeHoursMixin):

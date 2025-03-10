@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import BaseModel, field_validator, model_validator
 
-from exclude_hours.interfaces import Body
+from utils.interfaces import Body
 from utils.exclude_hours_exception import ExcludeHoursException
 
 
